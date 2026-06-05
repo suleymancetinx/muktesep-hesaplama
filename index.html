@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Müktesep Hesaplama</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Cpath d='M9 6h9l5 5v15a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z' fill='none' stroke='%2338bdf8' stroke-width='1.5'/%3E%3Cpolyline points='18 6 18 11 23 11' fill='none' stroke='%2338bdf8' stroke-width='1.5'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='11' y1='19' x2='21' y2='19' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='11' y1='22' x2='16' y2='22' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  /* ── DARK THEME (default) ── */
+  :root {
+    --bg: #0b0f1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --border-bright: #2a3f5f;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --accent: #38bdf8;
+    --accent-dim: #0ea5e920;
+    --accent-glow: #38bdf840;
+    --green: #34d399;
+    --green-dim: #34d39920;
+    --red: #f87171;
+    --red-dim: #f8717120;
+    --amber: #fbbf24;
+    --amber-dim: #fbbf2415;
+    --font-display: 'Sora', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --radius: 12px;
+    --radius-lg: 18px;
+    --nav-bg: rgba(11, 15, 26, 0.85);
+    --footer-bg: #111827;
+    --body-grad1: #0f2444;
+    --body-grad2: #061a2e;
+  }
+
+  /* ── LIGHT THEME ── */
+  html.light {
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --surface2: #f8fafc;
+    --border: #e2e8f0;
+    --border-bright: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #94a3b8;
+    --text-dim: #475569;
+    --accent: #0284c7;
+    --accent-dim: #0284c715;
+    --accent-glow: #0284c730;
+    --green: #059669;
+    --green-dim: #05966915;
+    --red: #dc2626;
+    --red-dim: #dc262615;
+    --amber: #d97706;
+    --amber-dim: #d9770610;
+    --nav-bg: rgba(255, 255, 255, 0.88);
+    --footer-bg: #ffffff;
+    --body-grad1: #bfdbfe;
+    --body-grad2: #e0f2fe;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-display);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.6;
+    transition: background-color 0.35s ease, color 0.35s ease;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, var(--body-grad1) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 90% 110%, var(--body-grad2) 0%, transparent 50%);
+  }
+
+  /* NAV */
+  nav {
+    background: var(--nav-bg);
+    transition: background 0.35s ease;
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent), #0284c7);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .nav-logo span {
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 0.875rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-btn:hover, .nav-btn.active {
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  .nav-btn.active { color: var(--accent); }
+
+  .hamburger {
+    display: none;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    transition: border-color 0.2s;
+  }
+
+  .hamburger:hover { border-color: var(--accent); }
+
+  .hamburger span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    padding: 0.75rem 1.5rem 1.25rem;
+    border-top: 1px solid var(--border);
+    gap: 0.25rem;
+  }
+
+  .mobile-menu.open { display: flex; }
+
+  .mobile-menu .nav-btn {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+  }
+
+  /* MAIN */
+  main {
+    flex: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 2.5rem 1.5rem;
+  }
+
+  /* TABS */
+  .tab { display: none; }
+  .tab.active { display: block; }
+
+  /* PAGE HEADER */
+  .page-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .page-header h1 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(120deg, var(--text) 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    max-width: 560px;
+    line-height: 1.7;
+  }
+
+  /* GRID */
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+  }
+
+  .card-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* FORM */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+
+  input[type="number"] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  input[type="number"].error {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px var(--red-dim);
+  }
+
+  .field-msg {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .field-msg.show { display: block; }
+  .field-msg.error { background: var(--red-dim); color: var(--red); border: 1px solid #f8717140; }
+  .field-msg.warning { background: var(--amber-dim); color: var(--amber); border: 1px solid #fbbf2440; }
+
+  /* CHECKBOXES */
+  .checks-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .checks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.625rem 0.75rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+  }
+
+  .check-item:hover { border-color: var(--border-bright); }
+
+  .check-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .check-item.checked {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .check-text { font-size: 0.8rem; font-weight: 500; color: var(--text-dim); }
+  .check-pts {
+    margin-left: auto;
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* BUTTON */
+  .btn-calc {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), #0284c7);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 0.875rem;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px #38bdf830;
+  }
+
+  .btn-calc:hover { opacity: 0.92; box-shadow: 0 6px 28px #38bdf845; }
+  .btn-calc:active { transform: scale(0.985); }
+
+  /* RESULT CARD */
+  .result-empty {
+    background: var(--surface);
+    border: 1px dashed var(--border-bright);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    min-height: 320px;
+  }
+
+  .result-empty-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--surface2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .result-empty h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-dim); }
+  .result-empty p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+
+  .result-card.show { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    margin-bottom: 1.25rem;
+  }
+
+  .result-badge.green { background: var(--green-dim); color: var(--green); border: 1px solid #34d39940; }
+  .result-badge.red { background: var(--red-dim); color: var(--red); border: 1px solid #f8717140; }
+  .result-badge.blue { background: var(--accent-dim); color: var(--accent); border: 1px solid #38bdf840; }
+
+  .result-score {
+    font-family: var(--font-mono);
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-score.green { color: var(--green); }
+  .result-score.red { color: var(--red); }
+  .result-score.blue { color: var(--accent); }
+
+  .result-desc {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+  }
+
+  .result-rows {
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .result-row-label { font-size: 0.8rem; color: var(--text-muted); }
+
+  .result-row-value {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .result-note {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-style: italic;
+  }
+
+  /* MUKTESP BAR */
+  .muktesep-bar-wrap {
+    margin-top: 1rem;
+  }
+
+  .bar-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .bar-track {
+    background: var(--surface2);
+    border-radius: 100px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent), #0ea5e9);
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* STATIC PAGES */
+  .static-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    max-width: 700px;
+  }
+
+  .static-card h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+
+  .static-card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .static-card strong { color: var(--text-dim); }
+
+  /* CONTACT */
+  .contact-wrap {
+    max-width: 460px;
+  }
+
+  .contact-avatar {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--accent), #0284c7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.25rem;
+  }
+
+  .contact-role {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: border-color 0.2s, color 0.2s;
+    margin-bottom: 0.75rem;
+  }
+
+  .contact-link:hover { border-color: var(--accent); color: var(--accent); }
+
+  .contact-link-icon { font-size: 1.1rem; }
+
+  /* CHANGELOG */
+  .changelog-wrap { max-width: 640px; }
+
+  .timeline {
+    position: relative;
+    padding-left: 1.75rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -1.75rem;
+    top: 6px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border-bright);
+  }
+
+  .timeline-dot.current {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+  }
+
+  .timeline-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .version-tag {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .current-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--accent-glow);
+  }
+
+  .date-tag {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .timeline-body {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--border-bright);
+    transform: scale(1.08);
+  }
+
+  .theme-toggle svg {
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  /* dark mode: show moon (white), hide sun */
+  .theme-toggle .icon-sun  { opacity: 0; transform: rotate(90deg) scale(0.5); stroke: #fbbf24; }
+  .theme-toggle .icon-moon { opacity: 1; transform: rotate(0deg) scale(1);   stroke: #ffffff; }
+
+  /* light mode: show sun (amber), hide moon */
+  html.light .theme-toggle .icon-sun  { opacity: 1; transform: rotate(0deg) scale(1);    stroke: #d97706; }
+  html.light .theme-toggle .icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.5); stroke: #ffffff; }
+
+  /* ── GLASS EFFECT ── */
+  .glass {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    border: 1px solid rgba(255,255,255,0.09);
+  }
+
+  html.light .glass {
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(18px) saturate(1.6);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    border: 1px solid rgba(255,255,255,0.75);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+  }
+
+  /* glass card overrides */
+  .glass.card, .glass.result-card, .glass.result-empty,
+  .glass.static-card {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.09);
+  }
+
+  html.light .glass.card,
+  html.light .glass.result-card,
+  html.light .glass.result-empty,
+  html.light .glass.static-card {
+    background: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.8);
+  }
+
+  /* CHECK DETAIL */
+  .check-text-wrap { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  .check-detail {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+    margin-top: 1px;
+  }
+
+  /* MUKTESEP SCORE BOX */
+  .muktesep-score-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface2);
+    border: 2px solid var(--border-bright);
+    border-radius: var(--radius);
+    padding: 0.875rem 1.125rem;
+  }
+
+  html.light .muktesep-score-box {
+    background: rgba(255,255,255,0.7);
+    border-color: var(--accent);
+  }
+
+  .msb-left { flex: 1; }
+
+  .msb-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .msb-right {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .msb-value {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    transition: color 0.3s;
+  }
+
+  .msb-value.capped { color: var(--amber); }
+
+  .msb-max {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .msb-overflow {
+    font-size: 0.72rem;
+    color: var(--amber);
+    margin-top: 0.4rem;
+    padding-left: 0.25rem;
+  }
+
+  /* RESULT HERO */
+  .result-hero {
+    display: none;
+    text-align: center;
+    padding: 1.5rem 0.5rem 1.75rem;
+    position: relative;
+  }
+
+  .result-hero.show { display: block; }
+
+  .result-hero::before {
+    content: '🎯';
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .result-hero-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .result-hero-score {
+    font-family: var(--font-mono);
+    font-size: clamp(3.5rem, 8vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--accent);
+    text-shadow: 0 0 40px var(--accent-glow);
+    margin-bottom: 0.5rem;
+    animation: slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(16px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .result-hero-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--footer-bg);
+    transition: background 0.35s ease;
+    border-top: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .footer-brand {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .footer-brand span { color: var(--accent); }
+
+  .share-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .share-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-right: 0.25rem;
+  }
+
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+    opacity: 0.85;
+  }
+
+  .share-btn:hover { transform: scale(1.13); opacity: 1; }
+
+  .share-fb   { background: #1877f2; box-shadow: 0 2px 10px #1877f240; }
+  .share-x    { background: #000;    box-shadow: 0 2px 10px #00000030; }
+  .share-li   { background: #0a66c2; box-shadow: 0 2px 10px #0a66c240; }
+  .share-pi   { background: #e60023; box-shadow: 0 2px 10px #e6002330; }
+  .share-mail { background: #64748b; box-shadow: 0 2px 10px #64748b40; }
+  .share-wa   { background: #25d366; box-shadow: 0 2px 10px #25d36640; }
+
+  html.light .share-x { background: #1a1a1a; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .calc-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .checks-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" onclick="showTab('home')" style="cursor:pointer">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="15" y2="17"/>
+          <line x1="9" y1="9" x2="11" y2="9"/>
+        </svg>
+      </div>
+      <span>Müktesep Hesaplama</span>
+    </a>
+    <div class="nav-links">
+      <button class="nav-btn active" data-tab="home" onclick="showTab('home')">Ana Sayfa</button>
+      <button class="nav-btn" data-tab="about" onclick="showTab('about')">Hakkımızda</button>
+      <button class="nav-btn" data-tab="contact" onclick="showTab('contact')">İletişim</button>
+      <button class="nav-btn" data-tab="changelog" onclick="showTab('changelog')">Sürüm Notları</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Tema değiştir">
+        <!-- Sun icon (gündüz) -->
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <!-- Moon icon (gece) -->
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menü">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="nav-btn" onclick="showTab('home')">Ana Sayfa</button>
+    <button class="nav-btn" onclick="showTab('about')">Hakkımızda</button>
+    <button class="nav-btn" onclick="showTab('contact')">İletişim</button>
+    <button class="nav-btn" onclick="showTab('changelog')">Sürüm Notları</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HOME TAB -->
+  <div class="tab active" id="tab-home">
+    <div class="page-header">
+      <h1>Nakil Mülakat Puanı Hesaplayıcı</h1>
+      <p>DİB Nakil Yönetmeliği'ne göre MBSTS puanınız, hizmet yılınız ve müktesep değerlerinizden mülakatta almanız gereken minimum puanı hesaplar.</p>
+    </div>
+
+    <div class="calc-grid">
+      <!-- FORM -->
+      <div class="card glass">
+        <div class="card-title">Veri Girişi</div>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="mbsts">MBSTS Puanı</label>
+            <input type="number" id="mbsts" min="0" max="100" step="0.001" placeholder="Örn: 75.250" oninput="onMbstsInput()"/>
+            <div class="field-msg" id="mbsts-msg"></div>
+          </div>
+          <div class="field">
+            <label for="years">Hizmet Yılı</label>
+            <input type="number" id="years" min="0" max="45" placeholder="Örn: 12" oninput="onYearsInput()"/>
+            <div class="field-msg" id="years-msg"></div>
+          </div>
+        </div>
+
+        <span class="checks-label">Müktesep Kriterleri</span>
+        <div class="checks-grid" id="checks-grid">
+          <!-- JS ile doldurulacak -->
+        </div>
+
+        <!-- Müktesep Özet -->
+        <div class="muktesep-bar-wrap" id="bar-wrap" style="margin-bottom:1.5rem">
+          <div class="muktesep-score-box">
+            <div class="msb-left">
+              <span class="msb-title">Müktesep Toplamı</span>
+              <div class="bar-track" style="margin-top:0.5rem">
+                <div class="bar-fill" id="bar-fill" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="msb-right">
+              <span class="msb-value" id="bar-value">0</span>
+            </div>
+          </div>
+          <div class="msb-overflow" id="msb-overflow" style="display:none">⚠️ Üst sınır (100) uygulandı</div>
+        </div>
+
+        <button class="btn-calc" onclick="calculate()">Hesapla →</button>
+      </div>
+
+      <!-- RESULT -->
+      <div>
+        <div class="result-empty glass" id="result-empty">
+          <div class="result-empty-icon">📊</div>
+          <h3>Henüz Hesaplama Yapılmadı</h3>
+          <p>Bilgileri doldurup<br/>'Hesapla' butonuna tıklayın.</p>
+        </div>
+
+        <div class="result-card glass" id="result-card">
+          <div class="result-badge" id="result-badge"></div>
+
+          <!-- Hero score block (shown for "blue" min puan case) -->
+          <div class="result-hero" id="result-hero">
+            <div class="result-hero-label">Barajı (70) geçerek tercih yapabilmeniz için<br/>mülakattan almanız gereken en düşük puan</div>
+            <div class="result-hero-score" id="result-hero-score"></div>
+            <div class="result-hero-sub">üzerinde mülakat puanı almanız yeterlidir</div>
+          </div>
+
+          <!-- Fallback desc for red/green -->
+          <div class="result-desc" id="result-desc"></div>
+
+          <div class="result-rows">
+            <div class="result-row">
+              <span class="result-row-label">MBSTS Puanı</span>
+              <span class="result-row-value" id="r-mbsts">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-row-label">Hizmet Yılı Müktesep</span>
+              <span class="result-row-value" id="r-years">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-row-label">Eğitim / Kurs Müktesep</span>
+              <span class="result-row-value" id="r-edu">—</span>
+            </div>
+            <div class="result-row">
+              <span class="result-row-label">Toplam Müktesep (maks 100)</span>
+              <span class="result-row-value" id="r-muktesep">—</span>
+            </div>
+          </div>
+          <p class="result-note">Bu araç tahmini değer sunar; resmi geçerliliği yoktur. Güncel mevzuatı DİB'in resmi duyurularından takip ediniz.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT TAB -->
+  <div class="tab" id="tab-about">
+    <div class="static-card glass">
+      <h2>Hakkımızda</h2>
+      <p>Bu uygulama, Diyanet İşleri Başkanlığı personelinin nakil sınavları öncesinde müktesep puanlarını kolayca hesaplayabilmeleri için bir yardımcı araç olarak <strong>tasarlanmıştır</strong>.</p>
+      <p>Hesaplama mantığı, resmi yönetmelikler ve duyurular dikkate alınarak <strong>oluşturulmuştur</strong>. MBSTS puanı, hizmet yılı ve eğitim belgeleri üzerinden standart bir puanlama üretilmektedir.</p>
+      <p>Uygulamanın temel amacı karmaşık hesaplama süreçlerini basitleştirmek ve personelin tercih dönemlerinde daha sağlıklı planlama yapmasına yardımcı olmaktır.</p>
+      <p><strong>Not:</strong> Bu araç yalnızca yönlendirme amaçlıdır; resmi sonuçlar için DİB'in yetkili kanallarını takip ediniz.</p>
+    </div>
+  </div>
+
+  <!-- CONTACT TAB -->
+  <div class="tab" id="tab-contact">
+    <div class="static-card contact-wrap glass">
+      <h2>İletişim</h2>
+      <div class="contact-avatar">👤</div>
+      <div class="contact-name">Süleyman Çetin</div>
+      <div class="contact-role">Yazılım Geliştirici &amp; Analist</div>
+      <a class="contact-link" href="mailto:suleymancetin@engineer.com">
+        <span class="contact-link-icon">✉️</span>
+        suleymancetin@engineer.com
+      </a>
+      <a class="contact-link" href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+        <span class="contact-link-icon">🔗</span>
+        LinkedIn Profilim
+      </a>
+    </div>
+  </div>
+
+  <!-- CHANGELOG TAB -->
+  <div class="tab" id="tab-changelog">
+    <div class="static-card changelog-wrap glass">
+      <h2>Sürüm Notları</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot current"></div>
+          <div class="timeline-meta">
+            <span class="version-tag">v2.0.0</span>
+            <span class="current-tag">GÜNCEL</span>
+            <span class="date-tag">Haziran 2025</span>
+          </div>
+          <div class="timeline-body">
+            Tam işlevsel hesaplama motoru yazıldı. DİB Nakil Yönetmeliği formülü uygulandı. Gerçek zamanlı doğrulama, müktesep çubuğu ve renk kodlu sonuç ekranı eklendi.
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-meta">
+            <span class="version-tag">v1.0.0</span>
+            <span class="date-tag">Mayıs 2024</span>
+          </div>
+          <div class="timeline-body">
+            İlk kararlı sürüm yayınlandı. Yeni arayüz tasarımı oluşturuldu. MBSTS ve Hizmet Yılı modülleri entegre edildi.
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-meta">
+            <span class="version-tag">v0.9.5</span>
+            <span class="date-tag">Mayıs 2024</span>
+          </div>
+          <div class="timeline-body">
+            Beta test süreci başlatıldı. Mobil cihazlar için uyumluluk optimizasyonu tasarlandı.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <p class="footer-brand">📜 <span>Müktesep Hesaplama</span> — Süleyman Çetin tarafından tasarlanmıştır &nbsp;·&nbsp; © 2025</p>
+    <div class="share-row">
+      <span class="share-label">Paylaş</span>
+      <!-- Facebook -->
+      <a class="share-btn share-fb" href="#" onclick="shareOn('facebook');return false;" title="Facebook'ta Paylaş" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      </a>
+      <!-- X / Twitter -->
+      <a class="share-btn share-x" href="#" onclick="shareOn('x');return false;" title="X'te Paylaş" aria-label="X">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <!-- LinkedIn -->
+      <a class="share-btn share-li" href="#" onclick="shareOn('linkedin');return false;" title="LinkedIn'de Paylaş" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      </a>
+      <!-- Pinterest -->
+      <a class="share-btn share-pi" href="#" onclick="shareOn('pinterest');return false;" title="Pinterest'te Paylaş" aria-label="Pinterest">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312-.088-.791-.167-2.005.035-2.868.181-.78 1.172-4.97 1.172-4.97s-.299-.598-.299-1.482c0-1.388.806-2.428 1.808-2.428.853 0 1.266.641 1.266 1.408 0 .858-.546 2.141-.828 3.329-.236.995.498 1.806 1.476 1.806 1.772 0 3.132-1.867 3.132-4.562 0-2.386-1.716-4.054-4.165-4.054-2.837 0-4.5 2.128-4.5 4.328 0 .857.33 1.776.741 2.279a.3.3 0 0 1 .069.286c-.076.315-.244.995-.277 1.134-.044.183-.146.222-.337.134-1.249-.581-2.03-2.407-2.03-3.874 0-3.154 2.292-6.052 6.608-6.052 3.469 0 6.165 2.473 6.165 5.776 0 3.447-2.173 6.22-5.19 6.22-1.013 0-1.966-.527-2.292-1.148l-.623 2.378c-.226.869-.835 1.958-1.244 2.621.938.29 1.931.446 2.962.446 5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+      </a>
+      <!-- Email -->
+      <a class="share-btn share-mail" href="#" onclick="shareOn('email');return false;" title="E-posta ile Paylaş" aria-label="E-posta">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </a>
+      <!-- WhatsApp -->
+      <a class="share-btn share-wa" href="#" onclick="shareOn('whatsapp');return false;" title="WhatsApp'ta Paylaş" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  "use strict";
+
+  // ── Checkbox tanımları ─────────────────────────────────────────────────────
+  /** @type {{ label: string; pts: number; id: string }[]} */
+  const CRITERIA = [
+    { id: "ihl",      label: "İmam Hatip Lisesi",                   detail: null,                                    pts: 10 },
+    { id: "onlisans", label: "Ön Lisans",                           detail: null,                                    pts:  5 },
+    { id: "lisans",   label: "Diğer Lisans",                        detail: null,                                    pts:  5 },
+    { id: "ilahiyat", label: "İlahiyat Fakültesi",                  detail: null,                                    pts: 10 },
+    { id: "yuksek",   label: "Yüksek Lisans",                       detail: null,                                    pts:  2 },
+    { id: "hafiz",    label: "Hafızlık",                             detail: null,                                    pts:  8 },
+    { id: "ihtisas",  label: "İhtisas Kursu",                       detail: "Aşere-Takrib ve diğer ihtisas kursları", pts:  5 },
+    { id: "tashih",   label: "Tashih-i Huruf",                      detail: null,                                    pts:  3 },
+    { id: "yds",      label: "YDS Belgesi",                         detail: "C ve üzeri puan şartı aranır",          pts:  2 },
+  ];
+
+  // ── DOM yardımcıları ───────────────────────────────────────────────────────
+  /** @param {string} id @returns {HTMLElement} */
+  const $  = (id) => document.getElementById(id);
+  /** @param {string} sel @returns {NodeListOf<Element>} */
+  const $$ = (sel) => document.querySelectorAll(sel);
+
+  // ── Checkbox'ları oluştur ──────────────────────────────────────────────────
+  (function buildChecks() {
+    const grid = $("checks-grid");
+    CRITERIA.forEach(({ id, label, detail, pts }) => {
+      const wrap = document.createElement("label");
+      wrap.className = "check-item";
+      wrap.setAttribute("for", "chk-" + id);
+      wrap.innerHTML = `
+        <input type="checkbox" id="chk-${id}" data-pts="${pts}"/>
+        <span class="check-text-wrap">
+          <span class="check-text">${label}</span>
+          ${detail ? `<span class="check-detail">${detail}</span>` : ""}
+        </span>
+        <span class="check-pts">+${pts}</span>`;
+      wrap.querySelector("input").addEventListener("change", () => {
+        wrap.classList.toggle("checked", wrap.querySelector("input").checked);
+        updateBar();
+      });
+      grid.appendChild(wrap);
+    });
+  })();
+
+  // ── Tema toggle ────────────────────────────────────────────────────────────
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle("light");
+    localStorage.setItem("theme", isLight ? "light" : "dark");
+  }
+
+  // Sayfa yüklenirken kaydedilmiş temayı uygula
+  (function applyStoredTheme() {
+    const saved = localStorage.getItem("theme");
+    if (saved === "light") document.documentElement.classList.add("light");
+  })();
+
+  // ── Tab navigasyonu ────────────────────────────────────────────────────────
+  /**
+   * @param {string} name
+   */
+  function showTab(name) {
+    $$(".tab").forEach(t => t.classList.remove("active"));
+    $$(".nav-btn[data-tab]").forEach(b => b.classList.remove("active"));
+
+    const tab = $("tab-" + name);
+    if (tab) tab.classList.add("active");
+
+    const btn = document.querySelector(`.nav-btn[data-tab="${name}"]`);
+    if (btn) btn.classList.add("active");
+
+    // Mobil menüyü kapat
+    $("mobile-menu").classList.remove("open");
+    $("hamburger").classList.remove("open");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ── Hamburger menü ─────────────────────────────────────────────────────────
+  function toggleMenu() {
+    const m = $("mobile-menu");
+    const h = $("hamburger");
+    const isOpen = m.classList.contains("open");
+    m.classList.toggle("open", !isOpen);
+    h.classList.toggle("open", !isOpen);
+  }
+
+  // ── Müktesep Bar ───────────────────────────────────────────────────────────
+  function calcEduPts() {
+    let total = 0;
+    $$("#checks-grid input[type='checkbox']").forEach(cb => {
+      if (cb.checked) total += parseInt(cb.dataset.pts, 10);
+    });
+    return total;
+  }
+
+  function updateBar() {
+    const eduPts = calcEduPts();
+    $("bar-fill").style.width  = Math.min(eduPts, 100) + "%";
+    $("bar-value").textContent = eduPts;
+    $("bar-value").classList.remove("capped");
+    $("msb-overflow").style.display = "none";
+  }
+
+  // ── Hizmet Yılı Müktesep ───────────────────────────────────────────────────
+  /**
+   * İlk 10 yıl: 3 puan/yıl (max 30)
+   * 11-30 yıl arası: 1 puan/yıl (max 20 ek)
+   * 30+ yıl: sabit 50
+   * @param {number} [y]
+   * @returns {number}
+   */
+  function calcYearPts(y) {
+    const years = y !== undefined ? y : (parseInt($("years").value, 10) || 0);
+    if (years >= 30) return 50;
+    if (years <= 10) return years * 3;
+    return 30 + (years - 10) * 1;
+  }
+
+  // ── Anlık doğrulama ────────────────────────────────────────────────────────
+  function showMsg(id, text, type) {
+    const el = $(id);
+    el.textContent = text;
+    el.className = "field-msg show " + type;
+  }
+
+  function clearMsg(id) {
+    const el = $(id);
+    el.textContent = "";
+    el.className = "field-msg";
+  }
+
+  function onMbstsInput() {
+    const val = parseFloat($("mbsts").value);
+    $("mbsts").classList.remove("error");
+    clearMsg("mbsts-msg");
+
+    if ($("mbsts").value === "") return;
+
+    if (val < 0 || val > 100) {
+      $("mbsts").classList.add("error");
+      showMsg("mbsts-msg", "MBSTS puanı 0–100 arasında olmalıdır.", "error");
+      return;
+    }
+
+    if (val < 50) {
+      showMsg(
+        "mbsts-msg",
+        "Bilgi: Diyanet İşleri Başkanlığı münhal kadro ilanlarında genellikle en az 50 MBSTS puanı şartı aramaktadır. Bu puanla sistem başvurunuzu kabul etmeyebilir.",
+        "warning"
+      );
+    }
+    updateBar();
+  }
+
+  function onYearsInput() {
+    const val = parseInt($("years").value, 10);
+    $("years").classList.remove("error");
+    clearMsg("years-msg");
+
+    if ($("years").value === "") return;
+
+    if (val < 0 || val > 45) {
+      $("years").classList.add("error");
+      showMsg("years-msg", "Hizmet yılı 0–45 arasında olmalıdır.", "error");
+      return;
+    }
+
+    if (val === 0) {
+      showMsg(
+        "years-msg",
+        "Bilgi: Aday memurların (asaleti tasdik olmayanların) kurum içi nakil talebinde bulunma hakkı bulunmamaktadır.",
+        "warning"
+      );
+    }
+    updateBar();
+  }
+
+  // ── Ana hesaplama ──────────────────────────────────────────────────────────
+  function calculate() {
+    const mbstsRaw = $("mbsts").value.trim();
+    const yearsRaw = $("years").value.trim();
+
+    if (!mbstsRaw || !yearsRaw) {
+      if (!mbstsRaw) showMsg("mbsts-msg", "MBSTS puanını giriniz.", "error");
+      if (!yearsRaw) showMsg("years-msg", "Hizmet yılını giriniz.", "error");
+      return;
+    }
+
+    const mbsts = parseFloat(mbstsRaw);
+    const years = parseInt(yearsRaw, 10);
+
+    let hasErr = false;
+    if (mbsts < 0 || mbsts > 100 || isNaN(mbsts)) {
+      $("mbsts").classList.add("error");
+      showMsg("mbsts-msg", "MBSTS puanı 0–100 arasında olmalıdır.", "error");
+      hasErr = true;
+    }
+    if (years < 0 || years > 45 || isNaN(years)) {
+      $("years").classList.add("error");
+      showMsg("years-msg", "Hizmet yılı 0–45 arasında olmalıdır.", "error");
+      hasErr = true;
+    }
+    if (hasErr) return;
+
+    const yearPts  = calcYearPts(years);
+    const eduPts   = calcEduPts();
+    const totalRaw = yearPts + eduPts;
+    const muktesep = Math.min(totalRaw, 100);
+
+    // Formül: (70 - MBSTS*0.40 - Müktesep*0.20) / 0.40
+    const minMulakat = (70 - mbsts * 0.40 - muktesep * 0.20) / 0.40;
+
+    $("result-empty").style.display = "none";
+    const card = $("result-card");
+    card.classList.add("show");
+
+    $("r-mbsts").textContent    = mbsts.toFixed(3);
+    $("r-years").textContent    = yearPts + " puan (" + years + " yıl)";
+    $("r-edu").textContent      = eduPts + " puan";
+    $("r-muktesep").textContent = muktesep + (totalRaw > 100 ? " (ham: " + totalRaw + ")" : "");
+
+    const hero = $("result-hero");
+    const desc = $("result-desc");
+
+    if (minMulakat > 100) {
+      hero.classList.remove("show");
+      $("result-badge").textContent = "❌ Baraj Aşılamıyor";
+      $("result-badge").className   = "result-badge red";
+      desc.style.display = "block";
+      desc.textContent   = "Matematiksel olarak 70 barajını geçmeniz mümkün görünmüyor. Mevcut MBSTS ve müktesep değerlerinizle mülakattan alabileceğiniz maksimum puan (100) bile yeterli değil.";
+    } else if (minMulakat <= 0) {
+      hero.classList.remove("show");
+      $("result-badge").textContent = "✅ Baraj Zaten Aşıldı";
+      $("result-badge").className   = "result-badge green";
+      desc.style.display = "block";
+      desc.textContent   = "Mevcut MBSTS puanı ve müktesep değerleriniz 70 barajını geçmek için zaten yeterlidir. Mülakata girmeniz yeterlidir; sıfır puan alsanız bile geçersiniz.";
+    } else {
+      desc.style.display = "none";
+      $("result-badge").textContent = "🎯 Minimum Mülakat Puanı";
+      $("result-badge").className   = "result-badge blue";
+      $("result-hero-score").textContent = minMulakat.toFixed(2);
+      hero.classList.add("show");
+    }
+
+    if (window.innerWidth < 900) {
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  // ── Paylaşım ───────────────────────────────────────────────────────────────
+  function shareOn(platform) {
+    const url   = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent("Müktesep Hesaplama — DİB Nakil Mülakat Puanı Hesaplayıcı");
+    const text  = encodeURIComponent("DİB personeli için müktesep ve mülakat puanı hesaplayıcı:");
+    const links = {
+      facebook  : `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      x         : `https://x.com/intent/tweet?url=${url}&text=${title}`,
+      linkedin  : `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+      pinterest : `https://pinterest.com/pin/create/button/?url=${url}&description=${title}`,
+      email     : `mailto:?subject=${title}&body=${text}%20${url}`,
+      whatsapp  : `https://wa.me/?text=${text}%20${url}`,
+    };
+    if (links[platform]) window.open(links[platform], "_blank", "noopener,noreferrer,width=640,height=480");
+  }
+</script>
+</body>
+</html>
